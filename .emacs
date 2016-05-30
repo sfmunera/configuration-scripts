@@ -28,6 +28,9 @@
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
+(require 'ido)
+(ido-mode t)
+
 ; auto-complete
 (add-to-list 'load-path "~/.emacs.d/auto-complete-1.3.1")
 (require 'auto-complete)
@@ -35,6 +38,10 @@
 (require 'auto-complete-config)
 (ac-config-default)
 (global-auto-complete-mode t)
+
+; use S-arrows to switch buffers
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
 
 ; always use spaces, not tabs, when indenting
 (setq indent-tabs-mode nil)
@@ -55,8 +62,9 @@
 (require 'paren)
 (show-paren-mode t)
 
-; use the "Subtle Hacker" color theme as a base for the custom scheme
 (require 'color-theme)
 (color-theme-initialize)
 (setq color-theme-is-global t)
-(color-theme-subtle-hacker)
+(color-theme-charcoal-black)
+
+(eshell)
