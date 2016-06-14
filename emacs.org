@@ -85,6 +85,32 @@ Make tab key do indent first then completion.
 #+BEGIN_SRC elisp
   (setq-default tab-always-indent 'complete)
 #+END_SRC
+
+** Initial screen
+
+#+BEGIN_SRC elisp
+  (setq inhibit-splash-screen t)
+  (setq inhibit-startup-screen t)
+#+END_SRC
+   
+** Line and Column number
+
+Show the current line and column numbers in the stats bar as well.
+   
+#+BEGIN_SRC elisp
+  (line-number-mode t)
+  (column-number-mode t)
+#+END_SRC
+   
+** Highlight Parentheses
+
+Highlight parentheses when the cursor is next to them:
+
+#+BEGIN_SRC elisp
+  (require 'paren)
+  (show-paren-mode t)
+#+END_SRC
+   
 * Display Settings
 
 Let's just get more screen space:
@@ -110,6 +136,12 @@ fill-region):
     :bind ("C-c T f" . auto-fill-mode)
     :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
     :diminish auto-fill-mode)
+#+END_SRC
+
+Number of characters until the fill column:
+
+#+BEGIN_SRC elisp
+  (setq fill-column 140)
 #+END_SRC
 
 * Key Bindings
@@ -170,7 +202,6 @@ And now it is possible to use arrow keys to resize windows :)
     ("<right>" hydra-move-splitter-right))
 #+END_SRC
 
-*** TODO Learn about Hydra
 ** Jump to windows
 
 Set up [[https://github.com/abo-abo/ace-window][ace-window]] mode:
@@ -179,13 +210,15 @@ Set up [[https://github.com/abo-abo/ace-window][ace-window]] mode:
   (use-package ace-window
     :ensure t
     :init
-      (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+      (setq aw-keys '(?a ?s ?d ?f g? h? ?j ?k ?l))
       (global-set-key (kbd "C-x o") 'ace-window)
       :diminish ace-window-mode)
 #+END_SRC
 
-*** TODO Learn how to use this
-
+This is really cool. When there are more than two windows, by
+pressing =C-x o= it is possible to jump to any window by writing the
+letter in the upper-left corner.
+ 
 ** Selecting a buffer
 
 Use =IDO= for selecting buffers. =<f8>= shows the buffers in the
@@ -196,7 +229,7 @@ minibuffer. =S-<f8>= shows the buffers in another buffer:
   (global-set-key (kbd "S-<f8>") 'ibuffer)
 #+END_SRC
 
-** TODO (Understand it better) Better jumping
+** Better jumping
 
 This is a way to jump to chars or lines by using a tree approach
 ([[https://github.com/abo-abo/avy][avy]]). Really cool!
@@ -207,18 +240,14 @@ This is a way to jump to chars or lines by using a tree approach
     :commands avy-goto-word-1 avy-goto-char-1 avy-goto-line avy-goto-char-timer
     :bind
     ("C-c j"   . avy-goto-word-1)
-    ("A-j"     . avy-goto-word-1)    ; The Mac Command key
     ("s-j"     . avy-goto-word-1)    ; The Command key on Linux
-    ("A-h"     . avy-goto-char-2)
     ("s-h"     . avy-goto-char-2)
     ("C-c k k" . avy-goto-char-timer)
-    ("A-J"     . avy-goto-char-timer)    ; The Mac Command key
     ("s-J"     . avy-goto-char-timer)    ; The Command key on Linux
     ("C-c k j" . avy-goto-word-1)
     ("C-c k c" . avy-goto-char-1)
     ("C-c k l" . avy-goto-line)
-    ("C-c k p" . avy-pop-mark)
-    ("A-,"     . avy-pop-mark))
+    ("C-c k p" . avy-pop-mark))
 #+END_SRC
 
 ** Unfill paragraph
@@ -238,7 +267,7 @@ line with =M-Q=.
   (define-key global-map "\M-Q" 'unfill-paragraph)
 #+END_SRC
 
-** TODO Multiple cursors
+** Multiple cursors
 
 This is the [[https://github.com/emacsmirror/multiple-cursors][multiple-cursors]] functionality:
 
@@ -264,9 +293,11 @@ This is the [[https://github.com/emacsmirror/multiple-cursors][multiple-cursors]
   
 #+END_SRC
 
+Use =C-c C-.= and a menu option to select multiple cursors.
+
 ** Expand region
 
-This is an extended version of the [[https://github.com/magnars/expand-region.el][expand-region]] taken from [[by ][here.]] To
+This is an extended version of the [[https://github.com/magnars/expand-region.el][expand-region]] taken from [[by ][here]]. To
 select increasing regions around cursor, use =C-==.
 
 #+BEGIN_SRC elisp
@@ -322,7 +353,7 @@ select increasing regions around cursor, use =C-==.
      
      (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
      (global-set-key (kbd "s-<down>") 'end-of-buffer)
-     (global-set-key (kbd "s-<left>") 'smarter-move-beginning-of-line)
+     (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
      (global-set-key (kbd "s-<right>") 'move-end-of-line)
      
      (global-set-key (kbd "M-<up>") 'backward-page)
@@ -331,16 +362,6 @@ select increasing regions around cursor, use =C-==.
      (global-set-key (kbd "M-<right>") 'forward-word)
    #+END_SRC
 * Loading and finding files
-** Dired options
-
-This is to use =find= when searching for files/directories with Dired:
-
-#+BEGIN_SRC elisp
-  (use-package find-dired
-     :ensure t
-     :init (setq find-ls-option '("-print0 | xargs -0 ls -od" . "-od")))
-#+END_SRC
-
 ** IDO (Interactively Do Things)
 
 #+BEGIN_SRC elisp
@@ -361,13 +382,13 @@ Now, it is more useful to see IDO results [[https://github.com/gempesaw/ido-vert
 #+BEGIN_SRC elisp
   (use-package ido-vertical-mode
     :ensure t
-    :init               ; I like up and down arrow keys:
+    :init
     (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
     :config
     (ido-vertical-mode 1))
 #+END_SRC
 
-** TODO Helm
+** Helm
 
 #+BEGIN_SRC elisp
   (use-package helm
@@ -375,11 +396,10 @@ Now, it is more useful to see IDO results [[https://github.com/gempesaw/ido-vert
     :init
     (use-package helm-config))
 #+END_SRC
-** TODO Emacs Grep
 * Word processing
 ** TODO Auto insertion
 
-It is possible to load pre-made templated in a blank file.
+It is possible to load pre-made templates in a blank file.
 
 #+BEGIN_SRC elisp
   (use-package autoinsert
@@ -541,7 +561,8 @@ On-the-fly syntax checking.
 #+END_SRC
 
 * Programming Languages
-** Tag Support
+  
+** TODO Tag Support
 
 First of all, let's install GNU Global:
 
@@ -664,6 +685,13 @@ Keeps all parenthesis balanced in Lisp-oriented languages:
     :init
       (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 #+END_SRC
+** Indentation
+
+#+BEGIN_SRC elisp
+  (setq c-default-style "gnu"
+        c-basic-offset 3)
+#+END_SRC
+   
 * Org Mode
 See [[file:emacs-org.org][emacs-org-mode.el]].
 
@@ -674,171 +702,11 @@ See [[file:emacs-org.org][emacs-org-mode.el]].
 * Tools
 ** TODO Magit
 * Look And Feel
-** Font Settings
 
-   Syntax highlighting.
-
-   #+BEGIN_SRC elisp
-     (global-font-lock-mode 1)
-   #+END_SRC
-
-   Let's try out these fonts:
-
-   #+BEGIN_SRC elisp
-     (defvar ha/fixed-font-family
-       (cond ((x-list-fonts "Hasklig")         "Hasklig")
-             ((x-list-fonts "Source Code Pro") "Source Code Pro")
-             ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
-             ((x-list-fonts "M+ 1mn")          "M+ 1mn"))
-       "My fixed width font based on what is installed, `nil' if not defined.")
-   #+END_SRC
-
-   Frame settings:
-
-   #+BEGIN_SRC elisp
-     (when ha/fixed-font-family
-       (set-frame-font ha/fixed-font-family)
-       (set-face-attribute 'default nil :font ha/fixed-font-family :height 150)
-       (set-face-font 'default ha/fixed-font-family))
-   #+END_SRC
-
-   #+BEGIN_SRC elisp
-     (defvar ha/variable-font-tuple
-       (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-             ((x-list-fonts "Verdana")         '(:font "Verdana"))
-             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro.")))
-       "My variable width font available to org-mode files and whatnot.")
-   #+END_SRC
-   
-** Color Theme
-   Install the =color-theme= package in Linux:
-
-   #+BEGIN_SRC sh :tangle no
-     sudo apt-get install -y emacs-goodies-el
-   #+END_SRC
-
-   And now install a specific =color-theme=:
-   
-   #+BEGIN_SRC elisp
-     (use-package color-theme
-       :ensure t
-       :init (require 'color-theme)
-       :config (use-package color-theme-sanityinc-tomorrow
-                :ensure t))
-   #+END_SRC
-
-   For the Org mode's source code blocks, there are more settings:
-
-   #+BEGIN_SRC elisp
-     (defun org-src-color-blocks-light ()
-       "Colors the block headers and footers to make them stand out more for lighter themes"
-       (interactive)
-       (custom-set-faces
-        '(org-block-begin-line
-         ((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF"))))
-        '(org-block-background
-          ((t (:background "#FFFFEA"))))
-        '(org-block
-          ((t (:background "#FFFFEA"))))
-        '(org-block-end-line
-          ((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF"))))
-     
-        '(mode-line-buffer-id ((t (:foreground "#005000" :bold t))))
-        '(which-func ((t (:foreground "#008000"))))))
-     
-     (defun org-src-color-blocks-dark ()
-       "Colors the block headers and footers to make them stand out more for dark themes"
-       (interactive)
-       (custom-set-faces
-        '(org-block-begin-line
-          ((t (:foreground "#008ED1" :background "#002E41"))))
-        '(org-block-background
-          ((t (:background "#000000"))))
-        '(org-block
-          ((t (:background "#000000"))))
-        '(org-block-end-line
-          ((t (:foreground "#008ED1" :background "#002E41"))))
-     
-        '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
-        '(which-func ((t (:foreground "green"))))))
-   #+END_SRC
-
-     #+BEGIN_SRC elisp
-     (deftheme ha/org-theme "Sub-theme to beautify org mode")
-  #+END_SRC
-
-  Since I’m using the Powerline project, switching my Emacs color
-  theme, requires me to call =powerline-reset= in order to get the
-  colors to apply to the mode line.
-
-  We put all of these requirements in a single function call:
-
+See [[file:emacs-graphical.org][emacs-graphical.el]].
+  
   #+BEGIN_SRC elisp
-    (defun ha/change-theme (theme org-block-style)
-      "Changes the color scheme and reset the mode line."
-      (funcall theme)
-      (funcall org-block-style)
-
-      (let* ((ha/fixed-font-tuple (list :font ha/fixed-font-family))
-             (base-font-color     (face-foreground 'default nil 'default))
-             (background-color    (face-background 'default nil 'default))
-             (primary-color       (face-foreground 'mode-line nil))
-             (secondary-color     (face-background 'secondary-selection nil 'region))
-             (base-height         (face-attribute 'default :height))
-             (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
-
-        (custom-theme-set-faces 'ha/org-theme
-                                `(org-agenda-structure ((t (:inherit default :height 2.0 :underline nil))))
-                                `(org-verbatim ((t (:inherit 'fixed-pitched :foreground "#aef"))))
-                                `(org-table ((t (:inherit 'fixed-pitched))))
-                                `(org-block ((t (:inherit 'fixed-pitched))))
-                                `(org-block-background ((t (:inherit 'fixed-pitched))))
-                                `(org-block-begin-line ((t (:inherit 'fixed-pitched))))
-                                `(org-block-end-line ((t (:inherit 'fixed-pitched))))
-                                `(org-level-8 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-7 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-6 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-5 ((t (,@headline ,@ha/variable-font-tuple))))
-                                `(org-level-4 ((t (,@headline ,@ha/variable-font-tuple
-                                                              :height ,(round (* 1.1 base-height))))))
-                                `(org-level-3 ((t (,@headline ,@ha/variable-font-tuple
-                                                              :height ,(round (* 1.25 base-height))))))
-                                `(org-level-2 ((t (,@headline ,@ha/variable-font-tuple
-                                                              :height ,(round (* 1.5 base-height))))))
-                                `(org-level-1 ((t (,@headline ,@ha/variable-font-tuple
-                                                              :height ,(round (* 1.75 base-height))))))
-                                `(org-document-title ((t (,@headline ,@ha/variable-font-tuple :height 1.5 :underline nil)))))))
+    (when (window-system)
+          (require 'init-client))
   #+END_SRC
-
-  And the default startup goes to...night...unless I'm at work, and
-  then we'll take the bright shiny theme.
-
-  #+BEGIN_SRC elisp
-    (if (equal "smuneraa" user-login-name)
-      (ha/change-theme 'color-theme-sanityinc-tomorrow-day
-                       'org-src-color-blocks-light)
-      (ha/change-theme 'color-theme-sanityinc-tomorrow-night
-                       'org-src-color-blocks-dark))
-  #+END_SRC
-
-
-* Undo and Redo
-
-  According to [[http://ergoemacs.org/emacs/emacs_best_redo_mode.html][this article]], I get better functionality than
-  the =redo+= plugin (which I can't seem to get working well).
-
-  #+BEGIN_SRC elisp
-    (use-package undo-tree
-      :ensure t
-      :diminish undo-tree-mode
-      :init
-      (global-undo-tree-mode 1)
-      :config
-      (defalias 'redo 'undo-tree-redo)
-      :bind (("C-z" . undo)     ; Zap to character isn't helpful
-             ("C-S-z" . redo)))
-  #+END_SRC
-   
 * TODO Offline documentation: Dash/Zealdocs

@@ -54,6 +54,25 @@
 
 (setq-default tab-always-indent 'complete)
 
+;; Initial screen
+
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-screen t)
+
+;; Line and Column number
+
+;; Show the current line and column numbers in the stats bar as well.
+
+(line-number-mode t)
+(column-number-mode t)
+
+;; Highlight Parentheses
+
+;; Highlight parentheses when the cursor is next to them:
+
+(require 'paren)
+(show-paren-mode t)
+
 ;; Display Settings
 
 ;; Let's just get more screen space:
@@ -76,6 +95,10 @@
   :bind ("C-c T f" . auto-fill-mode)
   :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
   :diminish auto-fill-mode)
+
+;; Number of characters until the fill column:
+
+(setq fill-column 140)
 
 ;; Manipulate size of windows
 
@@ -137,7 +160,7 @@
 (use-package ace-window
   :ensure t
   :init
-    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+    (setq aw-keys '(?a ?s ?d ?f g? h? ?j ?k ?l))
     (global-set-key (kbd "C-x o") 'ace-window)
     :diminish ace-window-mode)
 
@@ -149,7 +172,7 @@
 (global-set-key (kbd "<f8>") 'ido-switch-buffer)
 (global-set-key (kbd "S-<f8>") 'ibuffer)
 
-;; TODO (Understand it better) Better jumping
+;; Better jumping
 
 ;; This is a way to jump to chars or lines by using a tree approach
 ;; ([[https://github.com/abo-abo/avy][avy]]). Really cool!
@@ -159,18 +182,14 @@
   :commands avy-goto-word-1 avy-goto-char-1 avy-goto-line avy-goto-char-timer
   :bind
   ("C-c j"   . avy-goto-word-1)
-  ("A-j"     . avy-goto-word-1)    ; The Mac Command key
   ("s-j"     . avy-goto-word-1)    ; The Command key on Linux
-  ("A-h"     . avy-goto-char-2)
   ("s-h"     . avy-goto-char-2)
   ("C-c k k" . avy-goto-char-timer)
-  ("A-J"     . avy-goto-char-timer)    ; The Mac Command key
   ("s-J"     . avy-goto-char-timer)    ; The Command key on Linux
   ("C-c k j" . avy-goto-word-1)
   ("C-c k c" . avy-goto-char-1)
   ("C-c k l" . avy-goto-line)
-  ("C-c k p" . avy-pop-mark)
-  ("A-,"     . avy-pop-mark))
+  ("C-c k p" . avy-pop-mark))
 
 ;; Unfill paragraph
 
@@ -187,7 +206,7 @@ of text."
 ;; Handy key definition
 (define-key global-map "\M-Q" 'unfill-paragraph)
 
-;; TODO Multiple cursors
+;; Multiple cursors
 
 ;; This is the [[https://github.com/emacsmirror/multiple-cursors][multiple-cursors]] functionality:
 
@@ -212,7 +231,7 @@ of text."
 
 ;; Expand region
 
-;; This is an extended version of the [[https://github.com/magnars/expand-region.el][expand-region]] taken from [[by ][here.]] To
+;; This is an extended version of the [[https://github.com/magnars/expand-region.el][expand-region]] taken from [[by ][here]]. To
 ;; select increasing regions around cursor, use =C-==.
 
 (use-package expand-region
@@ -265,21 +284,13 @@ specified.  Select the current line if the LINES prefix is zero."
 
 (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
 (global-set-key (kbd "s-<down>") 'end-of-buffer)
-(global-set-key (kbd "s-<left>") 'smarter-move-beginning-of-line)
+(global-set-key (kbd "s-<left>") 'move-beginning-of-line)
 (global-set-key (kbd "s-<right>") 'move-end-of-line)
 
 (global-set-key (kbd "M-<up>") 'backward-page)
 (global-set-key (kbd "M-<down>") 'forward-page)
 (global-set-key (kbd "M-<left>") 'backward-word)
 (global-set-key (kbd "M-<right>") 'forward-word)
-
-;; Dired options
-
-;; This is to use =find= when searching for files/directories with Dired:
-
-(use-package find-dired
-   :ensure t
-   :init (setq find-ls-option '("-print0 | xargs -0 ls -od" . "-od")))
 
 ;; IDO (Interactively Do Things)
 
@@ -298,12 +309,12 @@ specified.  Select the current line if the LINES prefix is zero."
 
 (use-package ido-vertical-mode
   :ensure t
-  :init               ; I like up and down arrow keys:
+  :init
   (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
   :config
   (ido-vertical-mode 1))
 
-;; TODO Helm
+;; Helm
 
 (use-package helm
   :ensure t
@@ -312,7 +323,7 @@ specified.  Select the current line if the LINES prefix is zero."
 
 ;; TODO Auto insertion
 
-;; It is possible to load pre-made templated in a blank file.
+;; It is possible to load pre-made templates in a blank file.
 
 (use-package autoinsert
   :init
@@ -526,149 +537,22 @@ specified.  Select the current line if the LINES prefix is zero."
   :init
     (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
+;; Indentation
+
+(setq c-default-style "gnu"
+      c-basic-offset 3)
+
 ;; Org Mode
 ;; See [[file:emacs-org.org][emacs-org-mode.el]].
 
 (require 'init-org-mode)
 
-;; Font Settings
+;; Look And Feel
 
-;;    Syntax highlighting.
+;; See [[file:emacs-graphical.org][emacs-graphical.el]].
 
-(global-font-lock-mode 1)
-
-;; Let's try out these fonts:
-
-(defvar ha/fixed-font-family
-  (cond ((x-list-fonts "Hasklig")         "Hasklig")
-        ((x-list-fonts "Source Code Pro") "Source Code Pro")
-        ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
-        ((x-list-fonts "M+ 1mn")          "M+ 1mn"))
-  "My fixed width font based on what is installed, `nil' if not defined.")
-
-;; Frame settings:
-
-(when ha/fixed-font-family
-  (set-frame-font ha/fixed-font-family)
-  (set-face-attribute 'default nil :font ha/fixed-font-family :height 150)
-  (set-face-font 'default ha/fixed-font-family))
-
-(defvar ha/variable-font-tuple
-  (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-        ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-        ((x-list-fonts "Verdana")         '(:font "Verdana"))
-        ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-        (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro.")))
-  "My variable width font available to org-mode files and whatnot.")
-
-;; And now install a specific =color-theme=:
-
-(use-package color-theme
-  :ensure t
-  :init (require 'color-theme)
-  :config (use-package color-theme-sanityinc-tomorrow
-           :ensure t))
-
-;; For the Org mode's source code blocks, there are more settings:
-
-(defun org-src-color-blocks-light ()
-  "Colors the block headers and footers to make them stand out more for lighter themes"
-  (interactive)
-  (custom-set-faces
-   '(org-block-begin-line
-    ((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF"))))
-   '(org-block-background
-     ((t (:background "#FFFFEA"))))
-   '(org-block
-     ((t (:background "#FFFFEA"))))
-   '(org-block-end-line
-     ((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF"))))
-
-   '(mode-line-buffer-id ((t (:foreground "#005000" :bold t))))
-   '(which-func ((t (:foreground "#008000"))))))
-
-(defun org-src-color-blocks-dark ()
-  "Colors the block headers and footers to make them stand out more for dark themes"
-  (interactive)
-  (custom-set-faces
-   '(org-block-begin-line
-     ((t (:foreground "#008ED1" :background "#002E41"))))
-   '(org-block-background
-     ((t (:background "#000000"))))
-   '(org-block
-     ((t (:background "#000000"))))
-   '(org-block-end-line
-     ((t (:foreground "#008ED1" :background "#002E41"))))
-
-   '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
-   '(which-func ((t (:foreground "green"))))))
-
-(deftheme ha/org-theme "Sub-theme to beautify org mode")
-
-;; Since I’m using the Powerline project, switching my Emacs color
-;;   theme, requires me to call =powerline-reset= in order to get the
-;;   colors to apply to the mode line.
-
-;;   We put all of these requirements in a single function call:
-
-(defun ha/change-theme (theme org-block-style)
-  "Changes the color scheme and reset the mode line."
-  (funcall theme)
-  (funcall org-block-style)
-
-  (let* ((ha/fixed-font-tuple (list :font ha/fixed-font-family))
-         (base-font-color     (face-foreground 'default nil 'default))
-         (background-color    (face-background 'default nil 'default))
-         (primary-color       (face-foreground 'mode-line nil))
-         (secondary-color     (face-background 'secondary-selection nil 'region))
-         (base-height         (face-attribute 'default :height))
-         (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
-
-    (custom-theme-set-faces 'ha/org-theme
-                            `(org-agenda-structure ((t (:inherit default :height 2.0 :underline nil))))
-                            `(org-verbatim ((t (:inherit 'fixed-pitched :foreground "#aef"))))
-                            `(org-table ((t (:inherit 'fixed-pitched))))
-                            `(org-block ((t (:inherit 'fixed-pitched))))
-                            `(org-block-background ((t (:inherit 'fixed-pitched))))
-                            `(org-block-begin-line ((t (:inherit 'fixed-pitched))))
-                            `(org-block-end-line ((t (:inherit 'fixed-pitched))))
-                            `(org-level-8 ((t (,@headline ,@ha/variable-font-tuple))))
-                            `(org-level-7 ((t (,@headline ,@ha/variable-font-tuple))))
-                            `(org-level-6 ((t (,@headline ,@ha/variable-font-tuple))))
-                            `(org-level-5 ((t (,@headline ,@ha/variable-font-tuple))))
-                            `(org-level-4 ((t (,@headline ,@ha/variable-font-tuple
-                                                          :height ,(round (* 1.1 base-height))))))
-                            `(org-level-3 ((t (,@headline ,@ha/variable-font-tuple
-                                                          :height ,(round (* 1.25 base-height))))))
-                            `(org-level-2 ((t (,@headline ,@ha/variable-font-tuple
-                                                          :height ,(round (* 1.5 base-height))))))
-                            `(org-level-1 ((t (,@headline ,@ha/variable-font-tuple
-                                                          :height ,(round (* 1.75 base-height))))))
-                            `(org-document-title ((t (,@headline ,@ha/variable-font-tuple :height 1.5 :underline nil)))))))
-
-;; And the default startup goes to...night...unless I'm at work, and
-;;   then we'll take the bright shiny theme.
-
-(if (equal "smuneraa" user-login-name)
-  (ha/change-theme 'color-theme-sanityinc-tomorrow-day
-                   'org-src-color-blocks-light)
-  (ha/change-theme 'color-theme-sanityinc-tomorrow-night
-                   'org-src-color-blocks-dark))
-
-;; Undo and Redo
-
-;;   According to [[http://ergoemacs.org/emacs/emacs_best_redo_mode.html][this article]], I get better functionality than
-;;   the =redo+= plugin (which I can't seem to get working well).
-
-(use-package undo-tree
-  :ensure t
-  :diminish undo-tree-mode
-  :init
-  (global-undo-tree-mode 1)
-  :config
-  (defalias 'redo 'undo-tree-redo)
-  :bind (("C-z" . undo)     ; Zap to character isn't helpful
-         ("C-S-z" . redo)))
+(when (window-system)
+      (require 'init-client))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -682,4 +566,8 @@ specified.  Select the current line if the LINES prefix is zero."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
+ '(org-block ((t (:background "#000000"))))
+ '(org-block-background ((t (:background "#000000"))))
+ '(org-block-begin-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
+ '(org-block-end-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
  '(which-func ((t (:foreground "green"))) t))

@@ -1,0 +1,150 @@
+#+TITLE:  Graphical Mode Settings
+#+AUTHOR: Sebastián Múnera-Álvarez
+#+EMAIL:  sfmunera@gmail.com
+#+TAGS:   emacs
+
+* TODO Font Settings
+  
+  Syntax highlighting.
+
+  #+BEGIN_SRC elisp
+    (global-font-lock-mode 1)
+  #+END_SRC
+
+  Let's try out these fonts:
+
+  #+BEGIN_SRC elisp
+    (defvar ha/fixed-font-family
+      (cond ((x-list-fonts "Hasklig")         "Hasklig")
+            ((x-list-fonts "Source Code Pro") "Source Code Pro")
+            ((x-list-fonts "Anonymous Pro")   "Anonymous Pro")
+            ((x-list-fonts "M+ 1mn")          "M+ 1mn"))
+      "My fixed width font based on what is installed, `nil' if not defined.")
+  #+END_SRC
+
+  Frame settings:
+
+  #+BEGIN_SRC elisp
+    (when ha/fixed-font-family
+      (set-frame-font ha/fixed-font-family)
+      (set-face-attribute 'default nil :font ha/fixed-font-family :height 150)
+      (set-face-font 'default ha/fixed-font-family))
+  #+END_SRC
+
+  #+BEGIN_SRC elisp
+    (defvar ha/variable-font-tuple
+      (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+            ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+            ((x-list-fonts "Verdana")         '(:font "Verdana"))
+            ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+            (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro.")))
+      "My variable width font available to org-mode files and whatnot.")
+  #+END_SRC
+  
+* TODO Color Theme
+  Install the =color-theme= package in Linux:
+
+  #+BEGIN_SRC sh :tangle no
+    sudo apt-get install -y emacs-goodies-el
+  #+END_SRC
+
+  And now install a specific =color-theme=:
+  
+  #+BEGIN_SRC elisp
+    (use-package color-theme
+      :ensure t
+      :init (require 'color-theme)
+      :config (use-package color-theme-sanityinc-tomorrow
+               :ensure t))
+  #+END_SRC
+
+  For the Org mode's source code blocks, there are more settings:
+
+  #+BEGIN_SRC elisp
+    (defun org-src-color-blocks-dark ()
+      "Colors the block headers and footers to make them stand out more for dark themes"
+      (interactive)
+      (custom-set-faces
+       '(org-block-begin-line
+         ((t (:foreground "#008ED1" :background "#002E41"))))
+       '(org-block-background
+         ((t (:background "#000000"))))
+       '(org-block
+         ((t (:background "#000000"))))
+       '(org-block-end-line
+         ((t (:foreground "#008ED1" :background "#002E41"))))
+    
+       '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
+       '(which-func ((t (:foreground "green"))))))
+  #+END_SRC
+
+    #+BEGIN_SRC elisp
+    (deftheme ha/org-theme "Sub-theme to beautify org mode")
+ #+END_SRC
+
+  In principle, it is possible to switch between light and dark
+  themes, but nowadays I prefer to use the dark theme always.
+  
+ #+BEGIN_SRC elisp
+   (defun ha/change-theme (theme org-block-style)
+     "Changes the color scheme and reset the mode line."
+     (funcall theme)
+     (funcall org-block-style)
+   
+     (let* ((ha/fixed-font-tuple (list :font ha/fixed-font-family))
+            (base-font-color     (face-foreground 'default nil 'default))
+            (background-color    (face-background 'default nil 'default))
+            (primary-color       (face-foreground 'mode-line nil))
+            (secondary-color     (face-background 'secondary-selection nil 'region))
+            (base-height         (face-attribute 'default :height))
+            (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+   
+       (custom-theme-set-faces 'ha/org-theme
+                               `(org-agenda-structure ((t (:inherit default :height 2.0 :underline nil))))
+                               `(org-verbatim ((t (:inherit 'fixed-pitched :foreground "#aef"))))
+                               `(org-table ((t (:inherit 'fixed-pitched))))
+                               `(org-block ((t (:inherit 'fixed-pitched))))
+                               `(org-block-background ((t (:inherit 'fixed-pitched))))
+                               `(org-block-begin-line ((t (:inherit 'fixed-pitched))))
+                               `(org-block-end-line ((t (:inherit 'fixed-pitched))))
+                               `(org-level-8 ((t (,@headline ,@ha/variable-font-tuple))))
+                               `(org-level-7 ((t (,@headline ,@ha/variable-font-tuple))))
+                               `(org-level-6 ((t (,@headline ,@ha/variable-font-tuple))))
+                               `(org-level-5 ((t (,@headline ,@ha/variable-font-tuple))))
+                               `(org-level-4 ((t (,@headline ,@ha/variable-font-tuple
+                                                             :height ,(round (* 1.1 base-height))))))
+                               `(org-level-3 ((t (,@headline ,@ha/variable-font-tuple
+                                                             :height ,(round (* 1.25 base-height))))))
+                               `(org-level-2 ((t (,@headline ,@ha/variable-font-tuple
+                                                             :height ,(round (* 1.5 base-height))))))
+                               `(org-level-1 ((t (,@headline ,@ha/variable-font-tuple
+                                                             :height ,(round (* 1.75 base-height))))))
+                               `(org-document-title ((t (,@headline ,@ha/variable-font-tuple :height 1.5 :underline nil)))))))
+ #+END_SRC
+
+ And the default startup is the dark one:
+
+ #+BEGIN_SRC elisp
+   (ha/change-theme 'color-theme-sanityinc-tomorrow-night
+                    'org-src-color-blocks-dark)
+ #+END_SRC
+
+* Technical Artifacts
+
+  Make sure that we can simply =require= this library.
+
+  #+BEGIN_SRC elisp
+    (provide 'init-client)
+  #+END_SRC
+
+  Before you can build this on a new system, make sure that you put
+  the cursor over any of these properties, and hit: =C-c C-c=
+
+#+DESCRIPTION: A literate programming version of my Emacs Initialization for Graphical Clients
+#+PROPERTY:    results silent
+#+PROPERTY:    tangle ~/.emacs.d/elisp/init-client.el
+#+PROPERTY:    eval no-export
+#+PROPERTY:    comments org
+#+OPTIONS:     num:nil toc:nil todo:nil tasks:nil tags:nil
+#+OPTIONS:     skip:nil author:nil email:nil creator:nil timestamp:nil
+#+INFOJS_OPT:  view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
