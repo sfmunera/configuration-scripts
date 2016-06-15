@@ -687,11 +687,19 @@ Keeps all parenthesis balanced in Lisp-oriented languages:
 #+END_SRC
 ** Indentation
 
+Use the BSD style with 3 spaces for indentation.
+   
 #+BEGIN_SRC elisp
-  (setq c-default-style "gnu"
+  (setq c-default-style "bsd"
         c-basic-offset 3)
 #+END_SRC
-   
+
+Do not indent namespaces:
+
+#+BEGIN_SRC elisp
+  (c-set-offset 'innamespace 0)
+#+END_SRC
+
 * Org Mode
 See [[file:emacs-org.org][emacs-org-mode.el]].
 
