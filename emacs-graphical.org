@@ -87,7 +87,7 @@
   
  #+BEGIN_SRC elisp
    (defun ha/change-theme (theme org-block-style)
-     "Changes the color scheme and reset the mode line."
+     "Changes the color scheme."
      (funcall theme)
      (funcall org-block-style)
    

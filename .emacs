@@ -455,11 +455,11 @@ specified.  Select the current line if the LINES prefix is zero."
 
 ;; Now, use the following keys:
 
-;;    - M-. :: To find the tag at point to jump to the function’s
+;;    - =M-.= :: To find the tag at point to jump to the function’s
 ;;             definition when the point is over a function call. It is a
 ;;             dwim-type function.
-;;    - M-, :: jump back to where you were.
-;;    - M-? :: find a tag, that is, use the Tags file to look up a
+;;    - =M-,= :: jump back to where you were.
+;;    - =M-?= :: find a tag, that is, use the Tags file to look up a
 ;;             definition. If there are multiple tags in the project with
 ;;             the same name, use `C-u M-.’ to go to the next match.
 ;;    - =M-x tags-search= :: regexp-search through the source files
@@ -539,13 +539,43 @@ specified.  Select the current line if the LINES prefix is zero."
 
 ;; Indentation
 
-(setq c-default-style "gnu"
+;; Use the BSD style with 3 spaces for indentation.
+
+(setq c-default-style "bsd"
       c-basic-offset 3)
+
+;; Do not indent namespaces:
+
+(c-set-offset 'innamespace 0)
 
 ;; Org Mode
 ;; See [[file:emacs-org.org][emacs-org-mode.el]].
 
 (require 'init-org-mode)
+
+;; Magit
+
+;;    [[http://philjackson.github.com/magit/magit.html][Magit]] is a front end for Git. Check out [[https://www.youtube.com/watch?v=vQO7F2Q9DwA][this video]].
+
+(use-package magit
+  :ensure t
+  :commands magit-status magit-blame
+  :init
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+  :config
+  (setq magit-branch-arguments nil
+        ;; use ido to look for branches
+        magit-completing-read-function 'magit-ido-completing-read
+        ;; don't put "origin-" in front of new branch names by default
+        magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+        magit-push-always-verify nil
+        ;; Get rid of the previous advice to go into fullscreen
+        magit-restore-window-configuration t)
+
+  :bind ("C-x g" . magit-status))
 
 ;; Look And Feel
 
@@ -559,15 +589,13 @@ specified.  Select the current line if the LINES prefix is zero."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
- '(custom-safe-themes (quote ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default))))
+ '(custom-safe-themes
+   (quote
+    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
- '(org-block ((t (:background "#000000"))))
- '(org-block-background ((t (:background "#000000"))))
- '(org-block-begin-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
- '(org-block-end-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
- '(which-func ((t (:foreground "green"))) t))
+ '(which-func ((t (:foreground "green")))))
