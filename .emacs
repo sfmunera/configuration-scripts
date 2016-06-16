@@ -598,4 +598,8 @@ specified.  Select the current line if the LINES prefix is zero."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
+ '(org-block ((t (:background "#000000"))))
+ '(org-block-background ((t (:background "#000000"))))
+ '(org-block-begin-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
+ '(org-block-end-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
  '(which-func ((t (:foreground "green")))))
