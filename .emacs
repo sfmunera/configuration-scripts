@@ -583,23 +583,3 @@ specified.  Select the current line if the LINES prefix is zero."
 
 (when (window-system)
       (require 'init-client))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
- '(custom-safe-themes
-   (quote
-    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(mode-line-buffer-id ((t (:foreground "black" :bold t))))
- '(org-block ((t (:background "#000000"))))
- '(org-block-background ((t (:background "#000000"))))
- '(org-block-begin-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
- '(org-block-end-line ((t (:foreground "#008ED1" :background "#002E41"))) t)
- '(which-func ((t (:foreground "green")))))
