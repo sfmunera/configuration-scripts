@@ -10,7 +10,7 @@
 * Introduction
 So, I have been following Howard Abrams' blog about Emacs, and I
 decided to follow his advice on [[http://www.howardism.org/Technical/Emacs/emacs-init.html][customizing Emacs]] using literate
-programming! Much of what appears here is based on [[https://github.com/howardabrams/dot-files/blob/master/emacs.org][this Org file]].
+programming. Much of what appears here is based on [[https://github.com/howardabrams/dot-files/blob/master/emacs.org][this Org file]].
 
 *NOTE*: For every change, type =C-c C-v C-t=.
 
@@ -45,7 +45,8 @@ Extra scripts go in =~/.emacs.d/elisp=:
 
 * Package installation
 
-First, let's add the Emacs repositories:
+First, let's add the Emacs repositories (run once and comment this
+block out):
   
 #+BEGIN_SRC elisp
   (require 'package)
@@ -62,6 +63,8 @@ To install a package: =M-x package-list-packages=.
 
 ** Use-package
 
+Run once and comment this block out.
+   
 #+BEGIN_SRC elisp
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
@@ -109,6 +112,13 @@ Highlight parentheses when the cursor is next to them:
 #+BEGIN_SRC elisp
   (require 'paren)
   (show-paren-mode t)
+#+END_SRC
+
+** Safe color themes
+Set all color themes as safe.
+ 
+#+BEGIN_SRC elisp
+(setq custom-safe-themes t)
 #+END_SRC
    
 * Display Settings
@@ -210,7 +220,7 @@ Set up [[https://github.com/abo-abo/ace-window][ace-window]] mode:
   (use-package ace-window
     :ensure t
     :init
-      (setq aw-keys '(?a ?s ?d ?f g? h? ?j ?k ?l))
+      (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
       (global-set-key (kbd "C-x o") 'ace-window)
       :diminish ace-window-mode)
 #+END_SRC
@@ -561,7 +571,6 @@ On-the-fly syntax checking.
 #+END_SRC
 
 * Programming Languages
-  
 ** TODO Tag Support
 
 First of all, let's install GNU Global:

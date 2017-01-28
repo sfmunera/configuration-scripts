@@ -114,11 +114,11 @@
                                `(org-level-4 ((t (,@headline ,@ha/variable-font-tuple
                                                              :height ,(round (* 1.1 base-height))))))
                                `(org-level-3 ((t (,@headline ,@ha/variable-font-tuple
-                                                             :height ,(round (* 1.25 base-height))))))
+                                                             :height ,(round (* 1.2 base-height))))))
                                `(org-level-2 ((t (,@headline ,@ha/variable-font-tuple
-                                                             :height ,(round (* 1.5 base-height))))))
+                                                             :height ,(round (* 1.3 base-height))))))
                                `(org-level-1 ((t (,@headline ,@ha/variable-font-tuple
-                                                             :height ,(round (* 1.75 base-height))))))
+                                                             :height ,(round (* 1.4 base-height))))))
                                `(org-document-title ((t (,@headline ,@ha/variable-font-tuple :height 1.5 :underline nil)))))))
  #+END_SRC
 
@@ -128,7 +128,7 @@
    (ha/change-theme 'color-theme-sanityinc-tomorrow-night
                     'org-src-color-blocks-dark)
  #+END_SRC
-
+ 
 * Technical Artifacts
 
   Make sure that we can simply =require= this library.
