@@ -19,13 +19,13 @@ Standard key bindings
 #+END_SRC
 
 #+BEGIN_SRC elisp
-(setq org-use-speed-commands t
-          org-hide-emphasis-markers t
-          org-completion-use-ido t
-          org-outline-path-complete-in-steps nil
-          org-src-fontify-natively t   ;; Pretty code blocks
-          org-src-tab-acts-natively t
-          org-confirm-babel-evaluate nil)
+  (setq org-use-speed-commands t
+            org-hide-emphasis-markers t
+            org-completion-use-ido t
+            org-outline-path-complete-in-steps nil
+            org-src-fontify-natively t   ;; Pretty code blocks
+            org-src-tab-acts-natively t
+            org-confirm-babel-evaluate nil)
 #+END_SRC
 
 * Agenda Setup
@@ -65,62 +65,6 @@ and *S-right*.
 (setq org-treat-S-cursor-todo-selection-as-state-change nil)
 #+END_SRC
 
-* Capture Templates
-
-#+BEGIN_SRC elisp
-(setq org-directory "~/Private/personal-files/org")
-(setq org-default-notes-file "~/Private/personal-files/org/refile.org")
-
-;; I use C-c c to start capture mode
-(global-set-key (kbd "C-c c") 'org-capture)
-
-;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-(setq org-capture-templates
-      (quote (("t" "todo" entry (file "~/Private/personal-files/org/refile.org")
-               "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("n" "note" entry (file "~/Private/personal-files/org/refile.org")
-               "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-              ("j" "Journal" entry (file+datetree "~/Private/personal-files/org/diary.org")
-               "* %?\n%U\n" :clock-in t :clock-resume t)
-              ("h" "Habit" entry (file "~/Private/personal-files/org/refile.org")
-               "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
-#+END_SRC
-
-* Refile Setup
-
-#+BEGIN_SRC elisp
-; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                 (org-agenda-files :maxlevel . 9))))
-
-; Use full outline paths for refile targets - we file directly with IDO
-(setq org-refile-use-outline-path t)
-
-; Targets complete directly with IDO
-(setq org-outline-path-complete-in-steps nil)
-
-; Allow refile to create parent tasks with confirmation
-(setq org-refile-allow-creating-parent-nodes (quote confirm))
-
-; Use IDO for both buffer and file completion and ido-everywhere to t
-(setq org-completion-use-ido t)
-(setq ido-everywhere t)
-(setq ido-max-directory-size 100000)
-(ido-mode (quote both))
-; Use the current window when visiting files and buffers with ido
-(setq ido-default-file-method 'selected-window)
-(setq ido-default-buffer-method 'selected-window)
-; Use the current window for indirect buffer display
-(setq org-indirect-buffer-display 'current-window)
-
-;;;; Refile settings
-; Exclude DONE state tasks from refile targets
-(defun bh/verify-refile-target ()
-  "Exclude todo keywords with a done state from refile targets"
-  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
-
-(setq org-refile-target-verify-function 'bh/verify-refile-target)
-#+END_SRC
 * Summary TODO
 
 #+BEGIN_SRC elisp
@@ -143,15 +87,12 @@ and *S-right*.
      (org-babel-do-load-languages
       'org-babel-load-languages
       '((sh         . t)
-        (js         . t)
         (emacs-lisp . t)
-        (perl       . t)
         (scala      . t)
         (clojure    . t)
         (python     . t)
         (ruby       . t)
         (dot        . t)
-        (css        . t)
         (latex      . t)
         (plantuml   . t))))
   #+END_SRC

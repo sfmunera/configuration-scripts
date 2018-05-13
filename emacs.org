@@ -17,9 +17,7 @@ programming. Much of what appears here is based on [[https://github.com/howardab
 ** General settings
 
 #+BEGIN_SRC elisp
-  (defconst ha/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-  
-  (defun ha/emacs-subdirectory (d) (expand-file-name d ha/emacs-directory))
+(defun sm/expand-emacs-subdirectory (d) (expand-file-name d "~/.emacs.d/"))
 #+END_SRC
 
 ** Directory structure
@@ -27,8 +25,8 @@ programming. Much of what appears here is based on [[https://github.com/howardab
 Just to make sure that the following subdirectories exist:
 
 #+BEGIN_SRC elisp
-  (let* ((subdirs '("elisp" "backups" "snippets" "ac-dict" "templates"))
-         (fulldirs (mapcar (lambda (d) (ha/emacs-subdirectory d)) subdirs)))
+  (let* ((subdirs '("elisp" "ac-dict"))
+         (fulldirs (mapcar (lambda (d) (sm/expand-emacs-subdirectory d)) subdirs)))
     (dolist (dir fulldirs)
       (when (not (file-exists-p dir))
         (message "Make directory: %s" dir)
@@ -40,7 +38,7 @@ Just to make sure that the following subdirectories exist:
 Extra scripts go in =~/.emacs.d/elisp=:
 
 #+BEGIN_SRC elisp
-  (add-to-list 'load-path (ha/emacs-subdirectory "elisp"))
+  (add-to-list 'load-path "~/.emacs.d/elisp")
 #+END_SRC
 
 * Package installation
@@ -56,7 +54,7 @@ block out):
                            ("melpa"     . "http://melpa.milkbox.net/packages/")
                            ("marmalade" . "http://marmalade-repo.org/packages/")))
   (package-initialize)
-  (package-refresh-contents)
+;  (package-refresh-contents)
 #+END_SRC
 
 To install a package: =M-x package-list-packages=.
@@ -155,63 +153,6 @@ Number of characters until the fill column:
 #+END_SRC
 
 * Key Bindings
-** Manipulate size of windows
-
-Add Hydra as a package:
-
-#+BEGIN_SRC elisp
-  (use-package hydra
-    :ensure t
-    :config
-    (hydra-add-font-lock))
-#+END_SRC
-
-And now it is possible to use arrow keys to resize windows :)
-=<f9>-arrow=.
-
-#+BEGIN_SRC elisp
-  (require 'windmove)
-  
-  (defun hydra-move-splitter-left (arg)
-    "Move window splitter left."
-    (interactive "p")
-    (if (let ((windmove-wrap-around))
-          (windmove-find-other-window 'right))
-        (shrink-window-horizontally arg)
-      (enlarge-window-horizontally arg)))
-  
-  (defun hydra-move-splitter-right (arg)
-    "Move window splitter right."
-    (interactive "p")
-    (if (let ((windmove-wrap-around))
-          (windmove-find-other-window 'right))
-        (enlarge-window-horizontally arg)
-      (shrink-window-horizontally arg)))
-  
-  (defun hydra-move-splitter-up (arg)
-    "Move window splitter up."
-    (interactive "p")
-    (if (let ((windmove-wrap-around))
-          (windmove-find-other-window 'up))
-        (enlarge-window arg)
-      (shrink-window arg)))
-  
-  (defun hydra-move-splitter-down (arg)
-    "Move window splitter down."
-    (interactive "p")
-    (if (let ((windmove-wrap-around))
-          (windmove-find-other-window 'up))
-        (shrink-window arg)
-      (enlarge-window arg)))
-  
-  (defhydra hydra-splitter (global-map "<f9>")
-    "splitter"
-    ("<left>" hydra-move-splitter-left)
-    ("<down>" hydra-move-splitter-down)
-    ("<up>" hydra-move-splitter-up)
-    ("<right>" hydra-move-splitter-right))
-#+END_SRC
-
 ** Jump to windows
 
 Set up [[https://github.com/abo-abo/ace-window][ace-window]] mode:
@@ -229,54 +170,6 @@ This is really cool. When there are more than two windows, by
 pressing =C-x o= it is possible to jump to any window by writing the
 letter in the upper-left corner.
  
-** Selecting a buffer
-
-Use =IDO= for selecting buffers. =<f8>= shows the buffers in the
-minibuffer. =S-<f8>= shows the buffers in another buffer:
-
-#+BEGIN_SRC elisp
-  (global-set-key (kbd "<f8>") 'ido-switch-buffer)
-  (global-set-key (kbd "S-<f8>") 'ibuffer)
-#+END_SRC
-
-** Better jumping
-
-This is a way to jump to chars or lines by using a tree approach
-([[https://github.com/abo-abo/avy][avy]]). Really cool!
-
-#+BEGIN_SRC elisp
-  (use-package avy
-    :ensure t
-    :commands avy-goto-word-1 avy-goto-char-1 avy-goto-line avy-goto-char-timer
-    :bind
-    ("C-c j"   . avy-goto-word-1)
-    ("s-j"     . avy-goto-word-1)    ; The Command key on Linux
-    ("s-h"     . avy-goto-char-2)
-    ("C-c k k" . avy-goto-char-timer)
-    ("s-J"     . avy-goto-char-timer)    ; The Command key on Linux
-    ("C-c k j" . avy-goto-word-1)
-    ("C-c k c" . avy-goto-char-1)
-    ("C-c k l" . avy-goto-line)
-    ("C-c k p" . avy-pop-mark))
-#+END_SRC
-
-** Unfill paragraph
-
-Unfilling a paragraph joins all the lines in a paragraph into a single
-line with =M-Q=.
-
-#+BEGIN_SRC elisp
-  (defun unfill-paragraph ()
-    "Takes a multi-line paragraph and makes it into a single line
-  of text."
-    (interactive)
-    (let ((fill-column (point-max)))
-      (fill-paragraph nil)))
-  
-  ;; Handy key definition
-  (define-key global-map "\M-Q" 'unfill-paragraph)
-#+END_SRC
-
 ** Multiple cursors
 
 This is the [[https://github.com/emacsmirror/multiple-cursors][multiple-cursors]] functionality:
@@ -341,63 +234,7 @@ select increasing regions around cursor, use =C-==.
     :bind ("C-=" . ha/expand-region))
 #+END_SRC
 
-** Linux key bindings
-
-   In Linux, use the Super key (Windows logo) for commonly used tasks.
-
-   #+BEGIN_SRC elisp
-     (global-set-key (kbd "s-z") 'undo-tree-undo)
-     (global-set-key (kbd "s-y") 'undo-tree-redo)
-     (global-set-key (kbd "s-Z") 'undo-tree-redo)
-
-     (global-set-key (kbd "s-a") 'mark-whole-buffer)
-     (global-set-key (kbd "s-f") 'isearch-forward-regexp)
-     
-     (global-set-key (kbd "s-o") 'ido-find-file)
-     (global-set-key (kbd "s-s") 'save-buffer)
-     (global-set-key (kbd "s-+") 'text-scale-increase)
-     (global-set-key (kbd "s--") 'text-scale-decrease)
-     (global-set-key (kbd "s-l") 'goto-line)
-     (global-set-key (kbd "s-w") 'bury-buffer)
-     (global-set-key (kbd "s-M-w") 'kill-this-buffer)
-     
-     (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
-     (global-set-key (kbd "s-<down>") 'end-of-buffer)
-     (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
-     (global-set-key (kbd "s-<right>") 'move-end-of-line)
-     
-     (global-set-key (kbd "M-<up>") 'backward-page)
-     (global-set-key (kbd "M-<down>") 'forward-page)
-     (global-set-key (kbd "M-<left>") 'backward-word)
-     (global-set-key (kbd "M-<right>") 'forward-word)
-   #+END_SRC
 * Loading and finding files
-** IDO (Interactively Do Things)
-
-#+BEGIN_SRC elisp
-  (use-package ido
-    :ensure t
-    :init  (setq ido-enable-flex-matching t
-                 ido-ignore-extensions t
-                 ido-use-virtual-buffers t
-                 ido-everywhere t)
-    :config
-    (ido-mode 1)
-    (ido-everywhere 1)
-    (add-to-list 'completion-ignored-extensions ".pyc"))
-#+END_SRC
-
-Now, it is more useful to see IDO results [[https://github.com/gempesaw/ido-vertical-mode.el][vertically]] (Nice!):
-
-#+BEGIN_SRC elisp
-  (use-package ido-vertical-mode
-    :ensure t
-    :init
-    (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
-    :config
-    (ido-vertical-mode 1))
-#+END_SRC
-
 ** Helm
 
 #+BEGIN_SRC elisp
@@ -406,94 +243,17 @@ Now, it is more useful to see IDO results [[https://github.com/gempesaw/ido-vert
     :init
     (use-package helm-config))
 #+END_SRC
-* Word processing
-** TODO Auto insertion
-
-It is possible to load pre-made templates in a blank file.
 
 #+BEGIN_SRC elisp
-  (use-package autoinsert
-    :init
-    (setq auto-insert-directory (ha/emacs-subdirectory "templates/"))
-    ;; Don't want to be prompted before insertion:
-    (setq auto-insert-query nil)
-  
-    (add-hook 'find-file-hook 'auto-insert)
-    (auto-insert-mode 1))
-#+END_SRC
-
-Auto insertion requires entering data for particular fields, and for
-that Yasnippet is better, so in this case, we combine them:
-
-#+BEGIN_SRC elisp
-  (defun ha/autoinsert-yas-expand()
-    "Replace text in yasnippet template."
-    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
-#+END_SRC
-
-Now, it is possible to define templates for auto-insert:
-
-#+BEGIN_SRC elisp
-  (use-package autoinsert
-    :config
-    (define-auto-insert "\\.el$" ["default-lisp.el" ha/autoinsert-yas-expand]))
-#+END_SRC
-
-** TODO Yasnippets
-
-[[https://github.com/capitaomorte/yasnippet][Yasnippets]] allows to load snippets of code into a file.
-
-#+BEGIN_SRC elisp
-  (use-package yasnippet
-    :ensure t
-    :init
-    (yas-global-mode 1)
-    :config
-    (add-to-list 'yas-snippet-dirs (ha/emacs-subdirectory "snippets")))
-#+END_SRC
-
-** Spell Checking
-
-[[http://www.emacswiki.org/emacs/FlySpell][Flyspell]] is used here for spell checking. Uses [[http://aspell.net/][Aspell]].
-
-Aspell needs to be installed first:
-
-#+BEGIN_SRC sh :tangle no
-  sudo apt-get install -y aspell
+  (use-package helm
+    :bind (("C-c M-i" . helm-imenu)))
 #+END_SRC
 
 #+BEGIN_SRC elisp
-  (use-package flyspell
-    :ensure t
-    :diminish flyspell-mode
-    :init
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  
-    (dolist (hook '(text-mode-hook org-mode-hook))
-      (add-hook hook (lambda () (flyspell-mode 1))))
-  
-    (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
-      (add-hook hook (lambda () (flyspell-mode -1))))
-  
-    :config
-    (setq ispell-program-name "/usr/bin/aspell"
-          ispell-dictionary "american" ; better for aspell
-          ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
-          ispell-list-command "--list")
-  
-    (add-to-list 'ispell-local-dictionary-alist '(nil
-                                                  "[[:alpha:]]"
-                                                  "[^[:alpha:]]"
-                                                  "['‘’]"
-                                                  t
-                                                  ("-d" "en_US")
-                                                  nil
-                                                  utf-8)))
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
 #+END_SRC
-
-Aspell automatically configures a personal dictionary at
-=~/.aspell.en.pws=, so no need to configure that.
-
 * Miscellaneous
 ** Line Numbers
 
@@ -523,18 +283,6 @@ To toggle between absolute and relative =linum-mode='s, use
   :bind ("s-k" . linum-new-mode))
 #+END_SRC
 
-** Save File Position
-
-Save the point position for every file, and restore it when that file
-is reloaded.
-
-#+BEGIN_SRC elisp
-  (require 'saveplace)
-  (setq-default save-place t)
-  (setq save-place-forget-unreadable-files t)
-  (setq save-place-skip-check-regexp "\\`/\\(?:cdrom\\|floppy\\|mnt\\|/[0-9]\\|\\(?:[^@/:]*@\\)?[^@/:]*[^@/:.]:\\)")
-#+END_SRC
-
 ** Visual Regular Expressions
 
 Hightlights the searches while writing a regular expression.
@@ -557,133 +305,7 @@ matches, type =C-c a= before you hit ‘Return’ to accept it.
   
 #+END_SRC
 
-** Flycheck
-
-On-the-fly syntax checking.
-
-#+BEGIN_SRC elisp
-  (use-package flycheck
-    :ensure t
-    :init
-    (add-hook 'after-init-hook 'global-flycheck-mode)
-    :config
-    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
-#+END_SRC
-
 * Programming Languages
-** TODO Tag Support
-
-First of all, let's install GNU Global:
-
-   #+BEGIN_SRC sh :tangle no
-     sudo apt-get install -y global
-   #+END_SRC
-
-And then, Exuberant Ctags:
-
-#+BEGIN_SRC sh :tangle no
-  sudo apt-get install -y exuberant-ctags
-#+END_SRC
-
-*Note:* For every project run the following command:
-
-#+BEGIN_SRC sh :tangle no
-  ctags -e -R .
-#+END_SRC
-
-We access stuff by loading the =etags= package:
-
-#+BEGIN_SRC elisp
-  (require 'etags)
-#+END_SRC
-
-Now, use the following keys:
-
-   - =M-.= :: To find the tag at point to jump to the function’s
-            definition when the point is over a function call. It is a
-            dwim-type function.
-   - =M-,= :: jump back to where you were.
-   - =M-?= :: find a tag, that is, use the Tags file to look up a
-            definition. If there are multiple tags in the project with
-            the same name, use `C-u M-.’ to go to the next match.
-   - =M-x tags-search= :: regexp-search through the source files
-        indexed by a tags file (a bit like =grep=)
-   - =M-x tags-query-replace= :: query-replace through the source files
-        indexed by a tags file
-   - =M-x tags-apropos= :: list all tags in a tags file that match a
-        regexp
-   - =M-x list-tags= :: list all tags defined in a source file
-
-We can update the tags file whenever we save a file:
-
-#+BEGIN_SRC elisp
-  (use-package ctags-update
-    :ensure t
-    :config
-    (add-hook 'prog-mode-hook  'turn-on-ctags-auto-update-mode)
-    :diminish ctags-auto-update-mode)
-#+END_SRC
-
-Combining =imenu= with an IDO interface nicely lists the
-headings/functions in the current buffer:
-
-#+BEGIN_SRC elisp
-  (use-package idomenu
-    :ensure t
-    :bind ("C-c i" . idomenu))
-#+END_SRC
-
-Apparently, Helm is quite good:
-
-#+BEGIN_SRC elisp
-  (use-package helm
-    :bind (("C-c M-i" . helm-imenu)))
-#+END_SRC
-
-** Code Block Folding
-The Hide Show Minor mode allows us to fold all functions (hidden),
-showing only the header lines. We need to turn on the mode, so
-wrappers are in order:
-
-#+BEGIN_SRC elisp
-  (defun ha/hs-show-all ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-show-all))
-  
-  (defun ha/hs-hide-all ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-hide-all))
-  
-  (defun ha/hs-toggle-hiding ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-toggle-hiding))
-#+END_SRC
-
-Rebindings:
-
-#+BEGIN_SRC elisp
-  (use-package hs-minor-mode
-    :bind
-    ("C-c T h" . hs-minor-mode)
-    ("C-c h a" . ha/hs-hide-all)
-    ("C-c h s" . ha/hs-show-all)
-    ("C-c h h" . ha/hs-toggle-hiding))
-#+END_SRC
-
-** Red Warnings
-
-Various keywords (in comments) are now flagged in a Red Error font:
-
-#+BEGIN_SRC elisp
-  (add-hook 'prog-common-hook
-            (lambda ()
-              (font-lock-add-keywords nil
-                                      '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|HACK\\):" 1 font-lock-warning-face t)))))
-#+END_SRC
-
 ** Paredit Mode
 Keeps all parenthesis balanced in Lisp-oriented languages:
 
@@ -708,14 +330,6 @@ Do not indent namespaces:
 #+BEGIN_SRC elisp
   (c-set-offset 'innamespace 0)
 #+END_SRC
-
-* Org Mode
-See [[file:emacs-org.org][emacs-org-mode.el]].
-
-#+BEGIN_SRC elisp
-  (require 'init-org-mode)
-#+END_SRC
-
 * Tools
 ** Magit
 
@@ -742,6 +356,13 @@ See [[file:emacs-org.org][emacs-org-mode.el]].
 
        :bind ("C-x g" . magit-status))
    #+END_SRC
+
+* Org Mode
+See [[file:emacs-org.org][emacs-org-mode.el]].
+
+#+BEGIN_SRC elisp
+  (require 'init-org-mode)
+#+END_SRC
    
 * Look And Feel
 
@@ -751,4 +372,3 @@ See [[file:emacs-graphical.org][emacs-graphical.el]].
     (when (window-system)
           (require 'init-client))
   #+END_SRC
-* TODO Offline documentation: Dash/Zealdocs

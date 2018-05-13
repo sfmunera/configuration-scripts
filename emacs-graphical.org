@@ -3,7 +3,7 @@
 #+EMAIL:  sfmunera@gmail.com
 #+TAGS:   emacs
 
-* TODO Font Settings
+* Font Settings
   
   Syntax highlighting.
 
@@ -51,11 +51,7 @@
   And now install a specific =color-theme=:
   
   #+BEGIN_SRC elisp
-    (use-package color-theme
-      :ensure t
-      :init (require 'color-theme)
-      :config (use-package color-theme-sanityinc-tomorrow
-               :ensure t))
+    (load-theme 'sanityinc-tomorrow-night t)
   #+END_SRC
 
   For the Org mode's source code blocks, there are more settings:
