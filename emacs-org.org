@@ -16,38 +16,62 @@ Standard key bindings
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key "\C-cc" 'org-capture)
 #+END_SRC
 
 #+BEGIN_SRC elisp
-  (setq org-use-speed-commands t
-            org-hide-emphasis-markers t
-            org-completion-use-ido t
-            org-outline-path-complete-in-steps nil
-            org-src-fontify-natively t   ;; Pretty code blocks
-            org-src-tab-acts-natively t
-            org-confirm-babel-evaluate nil)
+  (setq org-src-fontify-natively t   ;; Pretty code blocks
+        org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil)
+#+END_SRC
+
+#+BEGIN_SRC elisp
+  (setq org-directory "~/Private/org/")
+  (setq org-todo-file (concat org-directory "work.org"))
+  (setq org-archive-file (concat org-directory "archive.org"))
+  (setq org-books-file (concat org-directory "books.org"))
+  (setq org-journal-file (concat org-directory "journal.org"))
+  (setq org-work-journal-file (concat org-directory "work-journal.org"))
 #+END_SRC
 
 * Agenda Setup
 
 Files that appear on the agenda.
 #+BEGIN_SRC elisp
-(setq org-agenda-files (quote ("~/Private/personal-files/org")))
+(setq org-agenda-files (list org-todo-file))
 #+END_SRC
 
 * ToDo keywords
 
 #+BEGIN_SRC elisp
 (setq org-todo-keywords
-      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-              (sequence "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
+      (quote ((sequence "TODO(t)" "DOING(n)" "|" "DONE(d!)")
+              (sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))))
 
 (setq org-todo-keyword-faces
       (quote (("TODO" :foreground "red" :weight bold)
-              ("NEXT" :foreground "blue" :weight bold)
+              ("DOING" :foreground "blue" :weight bold)
               ("DONE" :foreground "forest green" :weight bold)
-              ("HOLD" :foreground "magenta" :weight bold)
+              ("WAITING" :foreground "magenta" :weight bold)
               ("CANCELLED" :foreground "forest green" :weight bold))))
+#+END_SRC
+
+Hitting =C-c C-x C-s= will mark a todo as done and move it to an
+appropriate place in the archive.
+
+#+BEGIN_SRC elisp
+(defun hrs/mark-done-and-archive ()
+  "Mark the state of an org-mode item as DONE and archive it."
+  (interactive)
+  (org-todo 'done)
+  (org-archive-subtree))
+(define-key org-mode-map (kbd "C-c C-x C-s") 'hrs/mark-done-and-archive)
+#+END_SRC
+
+Record the time that a todo was archived.
+
+#+BEGIN_SRC elisp
+(setq org-log-done 'time)
 #+END_SRC
 
 * Fast ToDo selection
@@ -65,16 +89,30 @@ and *S-right*.
 (setq org-treat-S-cursor-todo-selection-as-state-change nil)
 #+END_SRC
 
-* Summary TODO
+* Capture templates
+  #+BEGIN_SRC elisp
+  (setq org-capture-templates
+      '(("f" "Finished book"
+         table-line (file org-books-file)
+         "| %^{Title} | %^{Author} | %u |")
 
-#+BEGIN_SRC elisp
-  (defun org-summary-todo (n-done n-not-done)
-    "Switch entry to DONE when all subentries are done, to TODO otherwise."
-    (let (org-log-done org-log-states)   ; turn off logging
-      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-  
-  (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
-#+END_SRC
+        ("r" "Reading"
+         checkitem (file org-books-file))
+
+        ("t" "Todo"
+         entry (file+headline org-todo-file "Organize")
+         "* TODO %?\n")
+
+        ("j" "Journal" 
+         entry (file+datetree org-journal-file)
+         "* %?"
+         :empty-lines 1)
+
+        ("w" "Work Journal" 
+         entry (file+datetree org-work-journal-file)
+         "* %?"
+         :empty-lines 1)))
+  #+END_SRC
 * Literate Programming
 
   The trick to literate programming is in the [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel project]], which
@@ -88,13 +126,27 @@ and *S-right*.
       'org-babel-load-languages
       '((sh         . t)
         (emacs-lisp . t)
-        (scala      . t)
-        (clojure    . t)
         (python     . t)
-        (ruby       . t)
         (dot        . t)
         (latex      . t)
         (plantuml   . t))))
+  #+END_SRC
+
+* Display preferences
+
+First download *org-bullets.el* and put it in =~/.emacs.d/elisp/=.
+
+  #+BEGIN_SRC elisp
+    (use-package org-bullets
+      :init
+      (add-hook 'org-mode-hook #'org-bullets-mode))
+    (setq org-hide-leading-stars t)
+  #+END_SRC
+
+Show an arrow instead of ellipsis when a org subtree is collapsed.
+
+  #+BEGIN_SRC elisp
+    (setq org-ellipsis "⤵")
   #+END_SRC
 
 * Technical Artifacts
